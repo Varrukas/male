@@ -26,6 +26,21 @@
         </v-col>
       </v-row>
 
+      <!-- TOP 3 mängijate kuvamine -->
+      <v-row>
+        <v-col>
+          <div class="podium" style="margin-top: 2rem;">
+            <h2>🏆 TOP 3 mängijat</h2>
+            <ul v-if="topPlayers.length">
+              <li v-for="(player, index) in topPlayers" :key="player.id">
+                {{ index + 1 }}. {{ player.eesnimi }} {{ player.perenimi }} – {{ player.punktid }} punkti
+              </li>
+            </ul>
+            <p v-else>Top mängijate andmed puuduvad või neid ei saanud laadida.</p>
+          </div>
+        </v-col>
+      </v-row>
+
       <v-row cols="12" md="8">
         <v-col>
           <v-divider :thickness="3"></v-divider>
@@ -67,7 +82,7 @@
 </template>
 
 <script>
-import {fetchClubById} from "@/wrapper/clubsApiWrapper.js";
+import { fetchClubById } from "@/wrapper/clubsApiWrapper.js";
 import PlayersSearchTable from "@/components/clubs/PlayersSearchTable.vue";
 import AddClubDialog from "@/components/clubs/AddClubDialog.vue";
 import ModifyClubForm from "@/components/clubs/ModifyClubForm.vue";
@@ -84,19 +99,32 @@ export default {
       club: null,
       clubId: null,
       showModifyClubDialog: false,
+      topPlayers: []
     }
   },
   created() {
     this.clubId = this.$route.params.id;
     this.$watch(
       () => this.$route.params.id,
-      this.fetchClubData,
-      {immediate: true}
+      () => {
+        this.fetchClubData();
+        this.fetchTopPlayers();
+      },
+      { immediate: true }
     )
   },
   methods: {
     async fetchClubData() {
       this.club = await fetchClubById(this.clubId)
+    },
+    async fetchTopPlayers() {
+      try {
+        const response = await fetch(`http://localhost:3000/api/clubs/${this.clubId}/topplayers`);
+        if (!response.ok) throw new Error('Top mängijate laadimine ebaõnnestus');
+        this.topPlayers = await response.json();
+      } catch (err) {
+        console.error('Top mängijate laadimise viga:', err);
+      }
     },
     openModifyClubDialog() {
       this.showModifyClubDialog = true;
@@ -105,7 +133,6 @@ export default {
       this.showModifyClubDialog = value;
     },
   }
-
 }
 </script>
 
@@ -115,5 +142,4 @@ export default {
   font-size: 2rem;
   font-weight: bold;
 }
-
 </style>

@@ -6,6 +6,7 @@ const {getAllClubs, getClubById, addClub, getTopClubs, deleteClub} = require("./
 const {getAllTournaments, getTournamentById, addTournament, getOngoingTournaments, deleteTournament} = require("./service/tournamentsService");
 const {getMatchByTournamentId, addMatchToTournament, getOngoingMatches, getMatchById} = require("./service/matchesService");
 const {getAllLocations} = require("./service/locationsService");
+const { getTopPlayersByClub } = require("./service/playersService");
 
 
 const app = express();
@@ -44,6 +45,8 @@ app.post("/api/matches", addMatchToTournament)
 app.delete("/api/matches/:matchId")
 
 app.get("/api/locations", getAllLocations)
+app.get("/api/clubs/:id/topplayers", getTopPlayersByClub);
+
 
 app.listen(3000, () => {
 });
